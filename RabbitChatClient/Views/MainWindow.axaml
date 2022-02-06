@@ -1,0 +1,37 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:RabbitChatClient.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="RabbitChatClient.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="RabbitChatClient"
+        WindowStartupLocation="CenterScreen"
+        Height="700"
+        Width="500">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open..."/>
+                <Separator/>
+                <MenuItem Header="_Exit"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="Copy"/>
+                <MenuItem Header="Paste"/>
+            </MenuItem>
+        </Menu>
+        
+        <Button DockPanel.Dock="Left" Command="{Binding BuyMusicCommand}">
+            <PathIcon Data="{StaticResource power_regular}" />
+        </Button>
+        
+        <ListBox Items="{Binding MyList}"/>
+    </DockPanel>
+</Window>

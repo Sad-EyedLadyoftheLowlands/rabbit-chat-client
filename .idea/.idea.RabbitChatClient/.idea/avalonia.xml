@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="RabbitChatClient/App.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
+        <entry key="RabbitChatClient/Icons.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
+        <entry key="RabbitChatClient/Views/AlbumView.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
+        <entry key="RabbitChatClient/Views/MainWindow.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
+        <entry key="RabbitChatClient/Views/MusicStoreView.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
+        <entry key="RabbitChatClient/Views/MusicStoreWindow.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
+      </map>
+    </option>
+  </component>
+</project>
