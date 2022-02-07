@@ -10,7 +10,7 @@ namespace RabbitChatClient.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         public string Greeting => "Welcome to Avalonia!";
-        public string Test => "My name is dindu nuffin";
+
         public List<int> MyList { get; set; }
         public ICommand BuyMusicCommand { get; }
         public Interaction<MusicStoreViewModel, AlbumViewModel?> ShowDialog { get; }
@@ -23,8 +23,8 @@ namespace RabbitChatClient.ViewModels
             {
                 var store = new MusicStoreViewModel();
                 var result = await ShowDialog.Handle(store);
-                
-                Console.WriteLine("In reactive command");
+
+                Console.WriteLine($"Album purchased from overlay: {result.Title}");
             });
 
             MyList = new List<int>();

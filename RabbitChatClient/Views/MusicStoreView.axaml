@@ -11,6 +11,7 @@
         </StackPanel>
         
         <Button Command="{Binding BuyMusicCommand}" Content="Buy Album" DockPanel.Dock="Bottom" HorizontalAlignment="Center"></Button>
+
         <ListBox Items="{Binding SearchResults}" SelectedItem="{Binding SelectedAlbum}" Background="Transparent" Margin="0 20">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -18,5 +19,6 @@
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
         </ListBox>
+        
     </DockPanel>
 </UserControl>
