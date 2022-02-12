@@ -15,5 +15,7 @@
         </Border>
         <TextBlock Text="{Binding Title}" HorizontalAlignment="Center" />
         <TextBlock Text="{Binding Artist}" HorizontalAlignment="Center" />
+        
+        <Button Command="{Binding Test}"></Button>
     </StackPanel>
 </UserControl>

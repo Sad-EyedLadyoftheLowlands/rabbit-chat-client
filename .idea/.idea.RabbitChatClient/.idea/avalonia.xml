@@ -6,9 +6,12 @@
         <entry key="RabbitChatClient/App.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
         <entry key="RabbitChatClient/Icons.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
         <entry key="RabbitChatClient/Views/AlbumView.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
+        <entry key="RabbitChatClient/Views/FriendView.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
         <entry key="RabbitChatClient/Views/MainWindow.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
         <entry key="RabbitChatClient/Views/MusicStoreView.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
         <entry key="RabbitChatClient/Views/MusicStoreWindow.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
+        <entry key="RabbitChatClient/Views/RoomView.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
+        <entry key="RabbitChatClient/Views/RoomWindow.axaml" value="RabbitChatClient/RabbitChatClient.csproj" />
       </map>
     </option>
   </component>

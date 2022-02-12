@@ -1,36 +1,161 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Net.Http;
+using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using DynamicData.Binding;
+using DynamicData.Tests;
+using RabbitChatClient.Models;
 using ReactiveUI;
 
 namespace RabbitChatClient.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public string Greeting => "Welcome to Avalonia!";
+        private readonly HttpClient _httpClient;
+        
+        private bool _collectionEmpty;
 
-        public List<int> MyList { get; set; }
+        private string _selectedUser;
+
+        private Friend _selectedFriend;
+
+        public Friend SelectedFriend
+        {
+            get => _selectedFriend;
+            set => this.RaiseAndSetIfChanged(ref _selectedFriend, value);
+        }
+
+        public string SelectedUser
+        {
+            get => _selectedUser;
+            set => this.RaiseAndSetIfChanged(ref _selectedUser, value);
+        }
+
+        public bool CollectionEmpty
+        {
+            get => _collectionEmpty;
+            set => this.RaiseAndSetIfChanged(ref _collectionEmpty, value);
+        }
+
+        public ObservableCollection<AlbumViewModel> Albums { get; } = new();
+
+        public ObservableCollection<FriendViewModel> Friends { get; } = new();
+
+        public ObservableCollection<string> Usernames { get; } = new();
+
         public ICommand BuyMusicCommand { get; }
+        public ICommand ShowRoom { get; }
+        
         public Interaction<MusicStoreViewModel, AlbumViewModel?> ShowDialog { get; }
+
+        public Interaction<RoomViewModel, string?> ShowRoomDialog { get; }
 
         public MainWindowViewModel()
         {
+            _httpClient = new HttpClient();
+            
             ShowDialog = new Interaction<MusicStoreViewModel, AlbumViewModel?>();
+
+            ShowRoomDialog = new Interaction<RoomViewModel, string?>();
+
+            ShowRoom = ReactiveCommand.CreateFromTask(async () =>
+            {
+                var room = new RoomViewModel();
+                var result = await ShowRoomDialog.Handle(room);
+            });
             
             BuyMusicCommand = ReactiveCommand.CreateFromTask(async () =>
             {
                 var store = new MusicStoreViewModel();
                 var result = await ShowDialog.Handle(store);
+                
+                if (result != null)
+                {
+                    Console.WriteLine($"Album purchased from overlay: {result.Title}");
+                    Albums.Add(result);
 
-                Console.WriteLine($"Album purchased from overlay: {result.Title}");
+                    await result.SaveToDiskAsync();
+                }
             });
 
-            MyList = new List<int>();
-            for (int i = 0; i < 100; i++)
+            this.WhenAnyValue(x => x.Albums.Count)
+                .Subscribe(x => CollectionEmpty = x == 0);
+
+            this.WhenAnyValue(x => x.SelectedUser).Subscribe(async x =>
             {
-                MyList.Add(i);
+                // var result = await ShowDialog.Handle(new MusicStoreViewModel());
+                // BuyMusicCommand.Execute(null);
+                Console.WriteLine($"Value changed for SelectedUser to: {SelectedUser}");
+                // ShowRoom.Execute(null);
+                Test();
+                // await ShowTest.Handle(Unit.Default);
+                // ShowDialog.Handle(new MusicStoreViewModel());
+            });
+
+            RxApp.MainThreadScheduler.Schedule(LoadAlbums);
+            RxApp.MainThreadScheduler.Schedule(LoadFriendsDep);
+            RxApp.MainThreadScheduler.Schedule(LoadFriends);
+        }
+
+        private async Task Test()
+        {
+            // await Execute(null);
+            // BuyMusicCommand.Execute(null);
+            var room = new RoomViewModel();
+            var result = await ShowRoomDialog.Handle(room);
+            // var result = ShowRoomDialog.Handle(room).Subscribe();
+        }
+
+        private void LoadFriends()
+        {
+            Friends.Add(new FriendViewModel(new Friend("First User")));
+            Friends.Add(new FriendViewModel(new Friend("Second User")));
+            Friends.Add(new FriendViewModel(new Friend("Third User")));
+        }
+        
+        private async void LoadFriendsDep()
+        {
+            /*
+             THIS WORKS
+             
+            var response = await _httpClient.GetAsync("http://localhost:5000/api/user/getfriends/1");
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+
+            var friends = JsonSerializer.Deserialize<List<RabbitUser>>(json);
+
+            foreach (var friend in friends)
+            {
+                Usernames.Add(friend.username);
+            }
+            
+            Console.WriteLine(friends);
+            */
+            Usernames.Add("First User");
+            Usernames.Add("Second User");
+            Usernames.Add("Third User");
+        }
+        
+        private async void LoadAlbums()
+        {
+            var albums = (await Album.LoadCachedAsync()).Select(x => new AlbumViewModel(x));
+
+            foreach (var album in albums)
+            {
+                Albums.Add(album);
+            }
+
+            foreach (var album in Albums.ToList())
+            {
+                await album.LoadCover();
             }
         }
     }
