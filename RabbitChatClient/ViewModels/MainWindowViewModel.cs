@@ -27,10 +27,26 @@ namespace RabbitChatClient.ViewModels
 
         private Friend _selectedFriend;
 
+        private int _selectedFriendIndex;
+
+        public int SelectedFriendIndex
+        {
+            get => _selectedFriendIndex;
+            set 
+            {
+                Console.WriteLine($"Selected friend index set to: {value}");
+                this.RaiseAndSetIfChanged(ref _selectedFriendIndex, value);
+            }
+        }
+
         public Friend SelectedFriend
         {
             get => _selectedFriend;
-            set => this.RaiseAndSetIfChanged(ref _selectedFriend, value);
+            set
+            {
+                Console.WriteLine($"Selected friend changed to: {value}");
+                this.RaiseAndSetIfChanged(ref _selectedFriend, value);
+            }
         }
 
         public string SelectedUser
@@ -52,7 +68,7 @@ namespace RabbitChatClient.ViewModels
         public ObservableCollection<string> Usernames { get; } = new();
 
         public ICommand BuyMusicCommand { get; }
-        public ICommand ShowRoom { get; }
+        // public ICommand ShowRoom { get; }
         
         public Interaction<MusicStoreViewModel, AlbumViewModel?> ShowDialog { get; }
 
@@ -66,11 +82,13 @@ namespace RabbitChatClient.ViewModels
 
             ShowRoomDialog = new Interaction<RoomViewModel, string?>();
 
+            /*
             ShowRoom = ReactiveCommand.CreateFromTask(async () =>
             {
                 var room = new RoomViewModel();
                 var result = await ShowRoomDialog.Handle(room);
             });
+            */
             
             BuyMusicCommand = ReactiveCommand.CreateFromTask(async () =>
             {
@@ -89,29 +107,21 @@ namespace RabbitChatClient.ViewModels
             this.WhenAnyValue(x => x.Albums.Count)
                 .Subscribe(x => CollectionEmpty = x == 0);
 
-            this.WhenAnyValue(x => x.SelectedUser).Subscribe(async x =>
+            this.WhenAnyValue(x => x.SelectedFriendIndex).Subscribe(async x =>
             {
-                // var result = await ShowDialog.Handle(new MusicStoreViewModel());
-                // BuyMusicCommand.Execute(null);
-                Console.WriteLine($"Value changed for SelectedUser to: {SelectedUser}");
-                // ShowRoom.Execute(null);
-                Test();
-                // await ShowTest.Handle(Unit.Default);
-                // ShowDialog.Handle(new MusicStoreViewModel());
+                Console.WriteLine($"Value from SelectedFriend: {x}");
+                TriggerShowRoomDialog();
             });
 
-            RxApp.MainThreadScheduler.Schedule(LoadAlbums);
-            RxApp.MainThreadScheduler.Schedule(LoadFriendsDep);
+            // RxApp.MainThreadScheduler.Schedule(LoadAlbums);
+            // RxApp.MainThreadScheduler.Schedule(LoadFriendsDep);
             RxApp.MainThreadScheduler.Schedule(LoadFriends);
         }
 
-        private async Task Test()
+        private async Task TriggerShowRoomDialog()
         {
-            // await Execute(null);
-            // BuyMusicCommand.Execute(null);
             var room = new RoomViewModel();
             var result = await ShowRoomDialog.Handle(room);
-            // var result = ShowRoomDialog.Handle(room).Subscribe();
         }
 
         private void LoadFriends()
@@ -123,9 +133,6 @@ namespace RabbitChatClient.ViewModels
         
         private async void LoadFriendsDep()
         {
-            /*
-             THIS WORKS
-             
             var response = await _httpClient.GetAsync("http://localhost:5000/api/user/getfriends/1");
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
@@ -138,10 +145,6 @@ namespace RabbitChatClient.ViewModels
             }
             
             Console.WriteLine(friends);
-            */
-            Usernames.Add("First User");
-            Usernames.Add("Second User");
-            Usernames.Add("Third User");
         }
         
         private async void LoadAlbums()

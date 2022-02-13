@@ -9,8 +9,6 @@ public partial class FriendView : UserControl
     public FriendView()
     {
         InitializeComponent();
-        
-        // this.WhenAct
     }
 
     private void InitializeComponent()

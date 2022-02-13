@@ -17,8 +17,13 @@ namespace RabbitChatClient.Views
 #if DEBUG
             this.AttachDevTools();
 #endif
-            this.WhenActivated(d => d(ViewModel!.ShowDialog.RegisterHandler(DoShowDialogAsync)));
-            this.WhenActivated(d => d(ViewModel!.ShowRoomDialog.RegisterHandler(DoShowRoomDialogAsync)));
+            // Register music store handler.
+            this.WhenActivated(d => 
+                d(ViewModel!.ShowDialog.RegisterHandler(DoShowDialogAsync)));
+            
+            // Register room handler.
+            this.WhenActivated(d => 
+                d(ViewModel!.ShowRoomDialog.RegisterHandler(DoShowRoomDialogAsync)));
         }
 
         private void InitializeComponent()

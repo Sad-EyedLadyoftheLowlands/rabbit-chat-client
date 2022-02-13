@@ -4,5 +4,19 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="RabbitChatClient.Views.RoomView">
-    Welcome to Avalonia!
+    <Panel>
+        <ListBox VerticalAlignment="Top" 
+                 Margin="0 0 0 110"
+                 Items="{Binding Messages}">
+        </ListBox>
+        
+        <TextBox Name="MyTextInput" 
+                 Height="100"
+                 Text="{Binding Text}"
+                 VerticalAlignment="Bottom" 
+                 AcceptsReturn="True" 
+                 TextWrapping="Wrap" />
+        
+        
+    </Panel>
 </UserControl>

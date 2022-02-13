@@ -13,28 +13,8 @@ public class FriendViewModel : ViewModelBase
 
     public string UserName => _friend.UserName;
 
-    public ICommand OpenRoom { get; }
-    
-    public Interaction<RoomViewModel, Unit> ShowRoomDialog { get; }
-
     public FriendViewModel(Friend friend)
     {
         _friend = friend;
-
-        /*
-        ShowRoomDialog = new Interaction<RoomViewModel, Unit>();
-
-        OpenRoom = ReactiveCommand.CreateFromTask(async () =>
-        {
-            var room = new RoomViewModel();
-            var result = await ShowRoomDialog.Handle(room);
-        });
-        */
     }
-
-    public void Test()
-    {
-        Console.WriteLine("In test");
-    }
-
 }
