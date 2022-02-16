@@ -1,6 +1,5 @@
 using System;
 using System.Collections.ObjectModel;
-using Avalonia.Interactivity;
 using ReactiveUI;
 
 namespace RabbitChatClient.ViewModels;
@@ -30,7 +29,7 @@ public class RoomViewModel : ViewModelBase
     {
         for (var i = 0; i < 20; i++)
         {
-            Messages.Add($"{i}");
+            Messages.Add($"Message #{i}");
         }
     }
 }

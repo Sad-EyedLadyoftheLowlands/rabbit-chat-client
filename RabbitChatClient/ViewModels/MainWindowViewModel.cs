@@ -27,7 +27,7 @@ namespace RabbitChatClient.ViewModels
 
         private Friend _selectedFriend;
 
-        private int _selectedFriendIndex;
+        private int _selectedFriendIndex = -1;
 
         public int SelectedFriendIndex
         {
@@ -110,7 +110,8 @@ namespace RabbitChatClient.ViewModels
             this.WhenAnyValue(x => x.SelectedFriendIndex).Subscribe(async x =>
             {
                 Console.WriteLine($"Value from SelectedFriend: {x}");
-                TriggerShowRoomDialog();
+                if (x >= 0 && x < Friends.Count)
+                    TriggerShowRoomDialog();
             });
 
             // RxApp.MainThreadScheduler.Schedule(LoadAlbums);
@@ -122,6 +123,9 @@ namespace RabbitChatClient.ViewModels
         {
             var room = new RoomViewModel();
             var result = await ShowRoomDialog.Handle(room);
+
+            Console.WriteLine("After result returned from ShowRoomDialog.Handle()");
+            SelectedFriendIndex = -1;
         }
 
         private void LoadFriends()

@@ -29,18 +29,19 @@
             </MenuItem>
         </Menu>
         <Panel Margin="40">
+            <!--
             <Button Margin="0 0 0 0" 
                     HorizontalAlignment="Right" 
                     VerticalAlignment="Top" 
                     Command="{Binding BuyMusicCommand}">
                 <PathIcon Data="{StaticResource music_regular}" />
             </Button>
-
+        
             <TextBlock IsVisible="{Binding CollectionEmpty}" 
                        Text="Its lonely in here. Purchase some music to get your collection started." 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Center" />
-
+            -->
             <!--
             FROM DEMO.
             
