@@ -2,13 +2,36 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:RabbitChatClient.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="RabbitChatClient.Views.RoomView">
     <Panel>
-        <ListBox VerticalAlignment="Top" 
-                 Margin="0 0 0 110"
-                 Items="{Binding Messages}">
+        <ListBox Margin="0 0 0 110" 
+                 Items="{Binding Messages}"
+                 SelectionMode="Single"
+                 SelectedIndex="{Binding SelectedMessageIndex}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <views:MessageView Margin="0 0 0 0" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
         </ListBox>
+        
+        <!--
+        <ItemsControl Margin="0 0 0 110" 
+                      Items="{Binding Messages}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <views:MessageView Margin="0 0 0 0" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        -->
         
         <TextBox Name="MyTextInput" 
                  Height="100"
@@ -16,7 +39,6 @@
                  VerticalAlignment="Bottom" 
                  AcceptsReturn="True" 
                  TextWrapping="Wrap" />
-        
         
     </Panel>
 </UserControl>

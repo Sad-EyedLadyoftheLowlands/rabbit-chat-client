@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Net.Http;
+using System.Reactive.Concurrency;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
-using DynamicData.Tests;
-using RabbitChatClient.Services;
+using RabbitChatClient.Models;
+using RabbitChatClient.Models.Responses;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using ReactiveUI;
@@ -13,13 +17,27 @@ namespace RabbitChatClient.ViewModels;
 public class RoomViewModel : ViewModelBase
 {
     private string _text;
+    private string _mqMessage;
+    private int _roomId;
+    private int _selectedMessageIndex;
+    private HttpClient _httpClient;
 
-    private RabbitMqService _mqService;
+    // public ObservableCollection<string> Messages { get; } = new();
 
-    // private readonly IRabbitMqService _mqService;
+    // public ObservableCollection<Message> FullMessages { get; } = new();
 
-    public ObservableCollection<string> Messages { get; } = new();
+    public ObservableCollection<MessageViewModel> Messages { get; } = new();
 
+    public string MqMessage
+    {
+        get => _mqMessage;
+        set
+        {
+            Console.WriteLine($"Received Rabbit Mq message: {value}");
+            this.RaiseAndSetIfChanged(ref _mqMessage, value);
+        }
+    }
+    
     public string Text
     {
         get => _text;
@@ -30,92 +48,77 @@ public class RoomViewModel : ViewModelBase
         }
     }
 
-    public RoomViewModel() // IRabbitMqService mqService
+    public int SelectedMessageIndex
     {
-        var t = new Thread(TestMq);
-        t.Start();
-        
-        /*
-        this.WhenAnyValue(x => test.Messages)
-            .Subscribe(async x => Console.WriteLine(x));
-        */
-        /*
-        this.WhenAnyValue(x => RabbitMqService.Integers)
-            .Subscribe(async x => Test());
-            */
-        // _mqService = mqService;
-        // _mqService.Test();
-
-        
-        // test.Test();
-        TempGetMessages();
-        /*
-         * this.WhenAnyValue(x => x.SelectedFriendIndex).Subscribe(async x =>
+        get => _selectedMessageIndex;
+        set
         {
-            Console.WriteLine($"Value from SelectedFriend: {x}");
-            if (x >= 0 && x < Friends.Count)
-                TriggerShowRoomDialog();
-        });
-         */
-    }
-
-    private void TempGetMessages()
-    {
-        for (var i = 0; i < 20; i++)
-        {
-            Messages.Add($"Message #{i}");
+            this.RaiseAndSetIfChanged(ref _selectedMessageIndex, value);
         }
     }
 
-    /*
-    private void Testing()
+    public RoomViewModel(HttpClient httpClient)
     {
-        this.WhenAnyValue(x => _mqService.Messages)
-            .Subscribe(async x => Console.WriteLine(x[0]));
+        _httpClient = httpClient;
+        
+        // TODO: Room id must come from constructor.
+        _roomId = 4;
+        
+        // Listening for Rabbit Mq messages must not block UI thread.
+        new Thread(ListenForMqMessages).Start();
+        
+        // TempGetMessages();
+
+        RxApp.MainThreadScheduler.Schedule(FetchMessages);
     }
-    */
-    
-    private void Test()
+
+    private async void FetchMessages()
     {
-        Console.WriteLine("HONK HONK!");
+        var response = await _httpClient.GetAsync($"http://localhost:5000/api/message/{_roomId}");
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+
+        var messages = JsonSerializer.Deserialize<List<Message>>(json, 
+            new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+        foreach (var message in messages)
+        {
+            Messages.Add(new MessageViewModel(message));
+        }
+
+        // Forces scrolling to most recent message.
+        SelectedMessageIndex = Messages.Count - 1;
     }
 
-    private void TestMq()
+    private void ListenForMqMessages()
     {
-        var factory = new ConnectionFactory()
-            {
-                HostName = "localhost",
-                UserName = "guest",
-                Password = "guest"
-            };
-            using var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
-            channel.ExchangeDeclare(exchange: "RabbitChat", type: ExchangeType.Fanout);
+        var factory = new ConnectionFactory
+        {
+            HostName = "localhost",
+            UserName = "guest",
+            Password = "guest"
+        };
+        
+        using var connection = factory.CreateConnection();
+        using var channel = connection.CreateModel();
+        channel.ExchangeDeclare("RabbitChat", ExchangeType.Fanout);
 
-            var queueName = channel.QueueDeclare().QueueName;
-            channel.QueueBind(queue: queueName,
-                exchange: "RabbitChat",
-                routingKey: "");
+        var queueName = channel.QueueDeclare().QueueName;
+        channel.QueueBind(queueName,
+            "RabbitChat",
+            "");
+        
+        var consumer = new EventingBasicConsumer(channel);
+        consumer.Received += (model, ea) => 
+            MqMessage = Encoding.UTF8.GetString(ea.Body.ToArray());
+        channel.BasicConsume(queueName,
+            true,
+            consumer);
 
-            Console.WriteLine(" [*] Waiting for logs.");
-
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (model, ea) =>
-            {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                Console.WriteLine(" [x] {0}", message);
-                // Messages.Clear();
-                Messages.Add(message);
-                foreach (var message1 in Messages)
-                {
-                    Console.WriteLine(message1);
-                }
-            };
-            channel.BasicConsume(queue: queueName,
-                autoAck: true,
-                consumer: consumer);
-
-            Console.ReadLine();
+        // TODO: There must be a better way to listen indefinitely.
+        Console.ReadLine();
     }
 }

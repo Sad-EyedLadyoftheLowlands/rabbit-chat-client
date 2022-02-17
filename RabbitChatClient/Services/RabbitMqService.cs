@@ -11,23 +11,19 @@ namespace RabbitChatClient.Services;
 /// </summary>
 public interface IRabbitMqService
 {
-    void Test();
+    void Connect();
 }
 
 /// <summary>
 /// Must eventually implement with DI as the Rabbit Mq service that exposes an observable message.
 /// </summary>
-public class RabbitMqService
+public class RabbitMqService : IRabbitMqService
 {
-    public ObservableCollection<int> Integers { get; } = new();
-    
-    private int _counter = 0;
-
     public ObservableCollection<string> Messages { get; } = new();
     
     public RabbitMqService()
     {
-        // Connect();
+        Connect();
     }
 
     public void Connect()
@@ -48,8 +44,6 @@ public class RabbitMqService
             routingKey: "");
 
         Console.WriteLine(" [*] Waiting for logs.");
-
-        // var subscription = new Subscription(channel, )
         
         var consumer = new EventingBasicConsumer(channel);
         consumer.Received += (model, ea) =>
@@ -69,16 +63,5 @@ public class RabbitMqService
             consumer: consumer);
 
         Console.ReadLine();
-    }
-    
-    public void Test()
-    {
-        for (int i = 0; i < 10; i++)
-        {
-            Integers.Add(i);
-        }
-        
-        _counter++;
-        Console.WriteLine(_counter);
     }
 }

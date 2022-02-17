@@ -9,6 +9,7 @@ using RabbitChatClient.Views;
 
 namespace RabbitChatClient
 {
+    // TODO: DI container is built, but injection into view models is not implemented.
     public partial class App : Application
     {
         private ServiceProvider _serviceProvider;
@@ -22,7 +23,7 @@ namespace RabbitChatClient
 
         private void ConfigureServices(ServiceCollection services)
         {
-            // services.AddSingleton<IRabbitMqService, RabbitMqService>();
+            services.AddSingleton<IRabbitMqService, RabbitMqService>();
         }
         
         public override void Initialize()

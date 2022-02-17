@@ -125,7 +125,7 @@ namespace RabbitChatClient.ViewModels
 
         private async Task TriggerShowRoomDialog()
         {
-            var room = new RoomViewModel();
+            var room = new RoomViewModel(_httpClient);
             var result = await ShowRoomDialog.Handle(room);
 
             Console.WriteLine("After result returned from ShowRoomDialog.Handle()");
