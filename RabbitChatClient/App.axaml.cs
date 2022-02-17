@@ -1,6 +1,9 @@
+using System;
+using Microsoft.Extensions.DependencyInjection;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using RabbitChatClient.Services;
 using RabbitChatClient.ViewModels;
 using RabbitChatClient.Views;
 
@@ -8,6 +11,20 @@ namespace RabbitChatClient
 {
     public partial class App : Application
     {
+        private ServiceProvider _serviceProvider;
+        public App()
+        {
+            var services = new ServiceCollection();
+            ConfigureServices(services);
+
+            _serviceProvider = services.BuildServiceProvider();
+        }
+
+        private void ConfigureServices(ServiceCollection services)
+        {
+            // services.AddSingleton<IRabbitMqService, RabbitMqService>();
+        }
+        
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);

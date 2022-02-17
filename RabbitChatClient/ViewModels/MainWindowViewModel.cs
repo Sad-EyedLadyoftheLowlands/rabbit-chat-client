@@ -10,15 +10,19 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia.Controls;
 using DynamicData.Binding;
 using DynamicData.Tests;
 using RabbitChatClient.Models;
+using RabbitChatClient.Services;
 using ReactiveUI;
 
 namespace RabbitChatClient.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        // private readonly IRabbitMqService _mqService;
+        
         private readonly HttpClient _httpClient;
         
         private bool _collectionEmpty;
@@ -74,7 +78,7 @@ namespace RabbitChatClient.ViewModels
 
         public Interaction<RoomViewModel, string?> ShowRoomDialog { get; }
 
-        public MainWindowViewModel()
+        public MainWindowViewModel() // IRabbitMqService mqService
         {
             _httpClient = new HttpClient();
             
