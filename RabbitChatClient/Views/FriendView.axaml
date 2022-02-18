@@ -6,5 +6,6 @@
              x:Class="RabbitChatClient.Views.FriendView">
     <StackPanel Spacing="5">
         <TextBlock Text="{Binding UserName}"></TextBlock>
+        <TextBlock Text="{Binding Alias}"></TextBlock>
     </StackPanel>
 </UserControl>

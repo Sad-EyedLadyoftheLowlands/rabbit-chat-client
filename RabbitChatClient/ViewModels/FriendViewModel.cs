@@ -9,11 +9,13 @@ namespace RabbitChatClient.ViewModels;
 
 public class FriendViewModel : ViewModelBase
 {
-    private readonly Friend _friend;
+    private readonly RabbitUser _friend;
 
-    public string UserName => _friend.UserName;
+    public string UserName => _friend.Username;
 
-    public FriendViewModel(Friend friend)
+    public string Alias => _friend.Alias;
+
+    public FriendViewModel(RabbitUser friend)
     {
         _friend = friend;
     }

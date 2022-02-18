@@ -3,18 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Avalonia.Controls;
-using DynamicData.Binding;
-using DynamicData.Tests;
 using RabbitChatClient.Models;
-using RabbitChatClient.Services;
 using ReactiveUI;
 
 namespace RabbitChatClient.ViewModels
@@ -30,6 +24,8 @@ namespace RabbitChatClient.ViewModels
         private Friend _selectedFriend;
 
         private int _selectedFriendIndex = -1;
+
+        private int _connectedUserId = 1;
 
         public int SelectedFriendIndex
         {
@@ -70,8 +66,7 @@ namespace RabbitChatClient.ViewModels
         public ObservableCollection<string> Usernames { get; } = new();
 
         public ICommand BuyMusicCommand { get; }
-        // public ICommand ShowRoom { get; }
-        
+
         public Interaction<MusicStoreViewModel, AlbumViewModel?> ShowDialog { get; }
 
         public Interaction<RoomViewModel, string?> ShowRoomDialog { get; }
@@ -84,14 +79,6 @@ namespace RabbitChatClient.ViewModels
 
             ShowRoomDialog = new Interaction<RoomViewModel, string?>();
 
-            /*
-            ShowRoom = ReactiveCommand.CreateFromTask(async () =>
-            {
-                var room = new RoomViewModel();
-                var result = await ShowRoomDialog.Handle(room);
-            });
-            */
-            
             BuyMusicCommand = ReactiveCommand.CreateFromTask(async () =>
             {
                 var store = new MusicStoreViewModel();
@@ -112,13 +99,14 @@ namespace RabbitChatClient.ViewModels
             this.WhenAnyValue(x => x.SelectedFriendIndex).Subscribe(async x =>
             {
                 Console.WriteLine($"Value from SelectedFriend: {x}");
+                // Confirm that value is within the range of Friends. 
                 if (x >= 0 && x < Friends.Count)
                     TriggerShowRoomDialog();
             });
 
             // RxApp.MainThreadScheduler.Schedule(LoadAlbums);
-            // RxApp.MainThreadScheduler.Schedule(LoadFriendsDep);
             RxApp.MainThreadScheduler.Schedule(LoadFriends);
+            // RxApp.MainThreadScheduler.Schedule(LoadFriendsDemo);
         }
 
         private async Task TriggerShowRoomDialog()
@@ -129,28 +117,22 @@ namespace RabbitChatClient.ViewModels
             Console.WriteLine("After result returned from ShowRoomDialog.Handle()");
             SelectedFriendIndex = -1;
         }
-
-        private void LoadFriends()
-        {
-            Friends.Add(new FriendViewModel(new Friend("First User")));
-            Friends.Add(new FriendViewModel(new Friend("Second User")));
-            Friends.Add(new FriendViewModel(new Friend("Third User")));
-        }
         
-        private async void LoadFriendsDep()
+        private async void LoadFriends()
         {
             var response = await _httpClient.GetAsync("http://localhost:5000/api/user/getfriends/1");
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
 
-            var friends = JsonSerializer.Deserialize<List<RabbitUser>>(json);
+            var friends = JsonSerializer.Deserialize<List<RabbitUser>>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
 
             foreach (var friend in friends)
             {
-                Usernames.Add(friend.username);
+                Friends.Add(new FriendViewModel(friend));
             }
-            
-            Console.WriteLine(friends);
         }
         
         private async void LoadAlbums()

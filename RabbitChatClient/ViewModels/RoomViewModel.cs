@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using RabbitChatClient.Models;
-using RabbitChatClient.Models.Responses;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using ReactiveUI;
