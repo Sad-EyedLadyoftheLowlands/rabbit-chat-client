@@ -21,8 +21,6 @@ namespace RabbitChatClient.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        // private readonly IRabbitMqService _mqService;
-        
         private readonly HttpClient _httpClient;
         
         private bool _collectionEmpty;
