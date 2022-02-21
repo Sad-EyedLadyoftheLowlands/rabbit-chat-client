@@ -141,29 +141,6 @@ namespace RabbitChatClient.ViewModels
             SelectedFriendIndex = -1;
         }
 
-        private async Task<Room?> GetRoomId(int requestedFriendId)
-        {
-            var request = new OpenPersonalRoomRequest
-            {
-                FriendId = _connectedUserId,
-                RequestUserId = requestedFriendId
-            };
-
-            var response = await _httpClient.PostAsJsonAsync("http://localhost:5000/api/room", request);
-            response.EnsureSuccessStatusCode();
-            var json = await response.Content.ReadAsStringAsync();
-            
-            var room = JsonSerializer.Deserialize<Room>(json, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            return room;
-
-            // var x = 5;
-            // return await Task.FromResult(5);
-        }
-        
         private async void LoadFriends()
         {
             // TODO: Should come from settings.
