@@ -15,6 +15,8 @@ public class FriendViewModel : ViewModelBase
 
     public string Alias => _friend.Alias;
 
+    public int FriendId => _friend.RabbitUserId;
+
     public FriendViewModel(RabbitUser friend)
     {
         _friend = friend;

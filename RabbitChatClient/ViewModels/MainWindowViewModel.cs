@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using RabbitChatClient.Models;
+using RabbitChatClient.Models.Requests;
 using ReactiveUI;
 
 namespace RabbitChatClient.ViewModels
@@ -61,9 +63,9 @@ namespace RabbitChatClient.ViewModels
 
         public ObservableCollection<AlbumViewModel> Albums { get; } = new();
 
-        public ObservableCollection<FriendViewModel> Friends { get; } = new();
+        public ObservableCollection<FriendViewModel> FriendViewModels { get; } = new();
 
-        public ObservableCollection<string> Usernames { get; } = new();
+        public ObservableCollection<RabbitUser> Friends { get; } = new();
 
         public ICommand BuyMusicCommand { get; }
 
@@ -100,7 +102,7 @@ namespace RabbitChatClient.ViewModels
             {
                 Console.WriteLine($"Value from SelectedFriend: {x}");
                 // Confirm that value is within the range of Friends. 
-                if (x >= 0 && x < Friends.Count)
+                if (x >= 0 && x < FriendViewModels.Count)
                     TriggerShowRoomDialog();
             });
 
@@ -111,15 +113,60 @@ namespace RabbitChatClient.ViewModels
 
         private async Task TriggerShowRoomDialog()
         {
-            var room = new RoomViewModel(_httpClient);
-            var result = await ShowRoomDialog.Handle(room);
+            // Get friend from list by index and pass into new RoomViewModel.
+            var friend = Friends.First(x => 
+                x.RabbitUserId == FriendViewModels[SelectedFriendIndex].FriendId);
+            
+            // Get room.
+            var request = new OpenPersonalRoomRequest
+            {
+                FriendId = _connectedUserId,
+                RequestUserId = friend.RabbitUserId
+            };
+
+            var response = await _httpClient.PostAsJsonAsync("http://localhost:5000/api/room", request);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            
+            var room = JsonSerializer.Deserialize<Room>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+            
+            // Pass room into view model constructor.
+            var roomViewModel = new RoomViewModel(_httpClient, room.RoomId);
+            var result = await ShowRoomDialog.Handle(roomViewModel);
 
             Console.WriteLine("After result returned from ShowRoomDialog.Handle()");
             SelectedFriendIndex = -1;
         }
+
+        private async Task<Room?> GetRoomId(int requestedFriendId)
+        {
+            var request = new OpenPersonalRoomRequest
+            {
+                FriendId = _connectedUserId,
+                RequestUserId = requestedFriendId
+            };
+
+            var response = await _httpClient.PostAsJsonAsync("http://localhost:5000/api/room", request);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            
+            var room = JsonSerializer.Deserialize<Room>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            return room;
+
+            // var x = 5;
+            // return await Task.FromResult(5);
+        }
         
         private async void LoadFriends()
         {
+            // TODO: Should come from settings.
             var response = await _httpClient.GetAsync("http://localhost:5000/api/user/getfriends/1");
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
@@ -128,10 +175,11 @@ namespace RabbitChatClient.ViewModels
             {
                 PropertyNameCaseInsensitive = true
             });
-
+            
             foreach (var friend in friends)
             {
-                Friends.Add(new FriendViewModel(friend));
+                Friends.Add(friend);
+                FriendViewModels.Add(new FriendViewModel(friend));
             }
         }
         

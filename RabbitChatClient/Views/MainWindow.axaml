@@ -61,7 +61,7 @@
             -->
             
             <ListBox Margin="0 40 0 0" 
-                     Items="{Binding Friends}" 
+                     Items="{Binding FriendViewModels}" 
                      SelectionMode="Single"
                      SelectedIndex="{Binding SelectedFriendIndex}">
                     <!--SelectedItem="{Binding SelectedFriend}"-->

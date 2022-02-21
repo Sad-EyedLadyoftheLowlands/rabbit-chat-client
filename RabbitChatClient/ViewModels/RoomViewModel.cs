@@ -56,17 +56,13 @@ public class RoomViewModel : ViewModelBase
         }
     }
 
-    public RoomViewModel(HttpClient httpClient)
+    public RoomViewModel(HttpClient httpClient, int roomId)
     {
         _httpClient = httpClient;
-        
-        // TODO: Room id must come from constructor.
-        _roomId = 4;
+        _roomId = roomId;
         
         // Listening for Rabbit Mq messages must not block UI thread.
         new Thread(ListenForMqMessages).Start();
-        
-        // TempGetMessages();
 
         RxApp.MainThreadScheduler.Schedule(FetchMessages);
     }
