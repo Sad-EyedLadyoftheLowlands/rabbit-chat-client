@@ -116,4 +116,9 @@ public class RoomViewModel : ViewModelBase
         // TODO: There must be a better way to listen indefinitely.
         Console.ReadLine();
     }
+
+    private void HandleReturnKeyDownOnTextBox()
+    {
+        Console.WriteLine("In data context");
+    }
 }

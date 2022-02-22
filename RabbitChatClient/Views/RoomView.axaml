@@ -37,8 +37,8 @@
                  Height="100"
                  Text="{Binding Text}"
                  VerticalAlignment="Bottom" 
-                 AcceptsReturn="True" 
+                 KeyDown="MyTextInput_OnKeyDown"
                  TextWrapping="Wrap" />
-        
+        <!--AcceptsReturn="True"-->
     </Panel>
 </UserControl>
