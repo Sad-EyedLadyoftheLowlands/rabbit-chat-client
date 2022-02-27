@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "9232a77a-5cf4-46b5-9fdd-95d31a7ee96c": {
+      "ProjectGuid": "9232a77a-5cf4-46b5-9fdd-95d31a7ee96c",
+      "DisplayName": "RabbitChatClient",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}

@@ -21,9 +21,9 @@ public partial class RoomView : UserControl
 
     private void MyTextInput_OnKeyDown(object? sender, KeyEventArgs e)
     {
-        var x = (RoomViewModel)this.DataContext;
-        Console.WriteLine("huh?");
+        if (e.Key != Key.Enter) return;
         
-        // throw new System.NotImplementedException();
+        var viewModel = (RoomViewModel)this.DataContext;
+        viewModel.HandleSendMessageRequested();
     }
 }

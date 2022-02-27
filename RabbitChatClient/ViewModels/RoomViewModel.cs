@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Reactive.Concurrency;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
 using RabbitChatClient.Models;
+using RabbitChatClient.Models.Requests;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using ReactiveUI;
@@ -33,6 +35,7 @@ public class RoomViewModel : ViewModelBase
         set
         {
             Console.WriteLine($"Received Rabbit Mq message: {value}");
+            FetchMessages();
             this.RaiseAndSetIfChanged(ref _mqMessage, value);
         }
     }
@@ -69,6 +72,9 @@ public class RoomViewModel : ViewModelBase
 
     private async void FetchMessages()
     {
+        // Make sure we do not have duplicates.
+        Messages.Clear();
+        
         var response = await _httpClient.GetAsync($"http://localhost:5000/api/message/{_roomId}");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
@@ -117,8 +123,28 @@ public class RoomViewModel : ViewModelBase
         Console.ReadLine();
     }
 
-    private void HandleReturnKeyDownOnTextBox()
+    public async void HandleSendMessageRequested()
     {
-        Console.WriteLine("In data context");
+        Console.WriteLine("Sending message");
+
+        // Send message
+        var createMessageRequest = new CreateMessageRequest
+        {
+            // TODO: Hardcoded, but data exists in MainWindowsViewModel
+            SendingUserId = 1,
+            RoomId = _roomId,
+            Content = Text
+        };
+
+        var response = await _httpClient.PostAsJsonAsync("http://localhost:5000/api/message", createMessageRequest);
+
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStreamAsync();
+        var test = JsonSerializer.Deserialize<bool>(json);
+
+        // Clear text
+        Text = string.Empty;
+
+        // ???
     }
 }
